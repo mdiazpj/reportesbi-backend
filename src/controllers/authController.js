@@ -57,7 +57,7 @@ export const handleAuthRedirect = async (req, res) => {
     const token = await getToken(authCode);
 
     // Redirigir al frontend con el token, puedes almacenarlo en el frontend para futuras solicitudes
-    res.redirect(`hhttps://reportespowerbi.pjchile.com/#/home?token=${token}`); // Pasa el token al frontend
+    res.redirect(`https://reportespowerbi.pjchile.com/#/home?token=${token}`); // Pasa el token al frontend
   } catch (error) {
     console.error('Error al intercambiar el código de autorización por token:', error);
     res.status(500).json({ message: 'Error en la autenticación', error: error.message });
