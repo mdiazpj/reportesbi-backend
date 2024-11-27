@@ -1,4 +1,4 @@
-import { assignRole, editUserRole, getAvailableRolesService, getSharedRoleUsers, getUsersWithoutAssignedRoles, removeUserRoleA } from '../services/roleService.js';
+import { assignRole, editUserRole, getAllUsersService, getAvailableRolesService, getSharedRoleUsers, getUsersWithoutAssignedRoles, removeUserRoleA } from '../services/roleService.js';
 
 
 /**
@@ -99,5 +99,24 @@ export const getAvailableRolesController = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error retrieving available roles' });
+  }
+};
+
+
+/**
+ * Controlador para obtener todos los usuarios junto con sus roles.
+ */
+export const getAllUsersController = async (req, res) => {
+  try {
+    const result = await getAllUsersService();
+
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+
+    res.json({ users: result.users });
+  } catch (error) {
+    console.error('Error in getAllUsersController:', error);
+    res.status(500).json({ error: 'Error retrieving all users' });
   }
 };

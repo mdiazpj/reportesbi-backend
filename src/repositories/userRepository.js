@@ -79,4 +79,30 @@ export const getUsersWithoutRoles = async () => {
 };
 
 
+/**
+ * Obtiene todos los usuarios junto con sus roles asignados (si los tienen).
+ * @returns {Promise<Array>} Lista de usuarios con roles asignados.
+ */
+export const getAllUsers = async () => {
+  const [rows] = await pool.query(`
+    SELECT 
+      u.user_id, 
+      u.name, 
+      u.email, 
+      JSON_ARRAYAGG(
+        JSON_OBJECT('role_id', r.role_id, 'role_name', r.role_name)
+      ) AS roles
+    FROM bi_user u
+    LEFT JOIN bi_user_role ur ON u.user_id = ur.user_id
+    LEFT JOIN bi_role r ON ur.role_id = r.role_id
+    GROUP BY u.user_id
+  `);
 
+  // Si roles es NULL, devuélvelo como un array vacío
+  return rows.map(user => ({
+    user_id: user.user_id,
+    name: user.name,
+    email: user.email,
+    roles: user.roles || [] // Si MySQL devuelve `NULL`, asigna un array vacío
+  }));
+};

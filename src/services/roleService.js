@@ -1,5 +1,5 @@
 import { assignNewUserRole, assignRoleToUser, deleteUserRole, getRoleNameById, logRoleRemoval, removeUserRole, userHasRole } from '../repositories/roleRepository.js';
-import { getUserRoles, getUsersWithoutRoles, getUsersWithSharedRoles } from '../repositories/userRepository.js';
+import { getAllUsers, getUserRoles, getUsersWithoutRoles, getUsersWithSharedRoles } from '../repositories/userRepository.js';
 
 /**
  * Verifica si el usuario autenticado tiene un rol específico.
@@ -127,4 +127,18 @@ export const getUsersWithoutAssignedRoles = async () => {
 export const getAvailableRolesService = async (currentUser) => {
   const availableRoles = currentUser.roles.filter(role => role.role_name !== 'Asignador');
   return availableRoles;
+};
+
+/**
+ * Servicio para obtener todos los usuarios junto con sus roles.
+ * @returns {Promise<Object>} Lista de usuarios con roles asignados.
+ */
+export const getAllUsersService = async () => {
+  try {
+    const users = await getAllUsers();
+    return { success: true, users };
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    return { success: false, error: 'Error fetching all users' };
+  }
 };
