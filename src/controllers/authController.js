@@ -4,10 +4,22 @@ import { getEmbedToken } from '../services/azureAuthService.js';
 
 export const login = async (req, res) => {
   const { email } = req.body;
-  const token = await loginUser(email);
-  if (!token) return res.status(401).json({ error: 'User not found' });
 
-  res.json({ token });
+  // Captura la dirección IP y el User-Agent
+  const ipAddress = req.ip;
+  const userAgent = req.headers['user-agent'];
+
+  try {
+    const token = await loginUser(email, ipAddress, userAgent);
+    if (!token) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Error en el proceso de login:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
 export const authenticateUser = async (req, res) => {

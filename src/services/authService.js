@@ -2,13 +2,13 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { getUserByEmail, getUserRoles } from '../repositories/userRepository.js';
 import cca from '../config/msalConfig.js';
-
+import pool from '../config/db.js';
 
 
 
 dotenv.config();
 
-export const loginUser = async (email) => {
+export const loginUser = async (email, ipAddress, userAgent) => {
   const user = await getUserByEmail(email);
   if (!user) return null;
 
@@ -19,11 +19,17 @@ export const loginUser = async (email) => {
       userId: user.user_id,
       name: user.name,
       email: user.email,
-      roles
+      roles,
     },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
+
+  // Registrar el inicio de sesión en la tabla bi_user_login_trace con el correo electrónico
+  await pool.query(`
+    INSERT INTO bi_user_login_trace (user_id, email, ip_address, user_agent) 
+    VALUES (?, ?, ?, ?)
+  `, [user.user_id, user.email, ipAddress, userAgent]);
 
   return token;
 };
