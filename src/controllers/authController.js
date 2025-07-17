@@ -1,6 +1,6 @@
 import cca from '../config/msalConfig.js';
 import { getToken, loginUser } from '../services/authService.js';
-import { getEmbedToken } from '../services/azureAuthService.js';
+import { getEmbedToken, getEmbedTokenMulti, getEmbedTokenMultiRol } from '../services/azureAuthService.js';
 
 export const login = async (req, res) => {
   const { email } = req.body;
@@ -39,6 +39,62 @@ export const authenticateUser = async (req, res) => {
     res.status(500).json({ error: 'Error en la autenticación', details: error.message });
   }
 };
+
+
+export const authenticateMultipleReports = async (req, res) => {
+  try {
+    const { reports } = req.body;
+    if (!Array.isArray(reports) || reports.length === 0) {
+      return res.status(400).json({ error: 'reports es requerido y debe ser un arreglo' });
+    }
+
+    // Extrae los reportIds y groupIds
+    const reportConfigs = reports.map(r => ({
+      reportId: r.reportId,
+      groupId: r.groupId,
+    }));
+
+    // Extrae las identidades si están presentes
+    const tokenData = await getEmbedTokenMulti(reportConfigs);
+
+    res.json({
+      embedToken: tokenData.embedToken,
+      reports: tokenData.reports,
+      groupId: tokenData.groupId
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en la autenticación múltiple', details: error.message });
+  }
+};
+
+export const authenticateMultpipleRol = async (req, res) => {
+  try {
+    const { reports } = req.body;
+    if (!Array.isArray(reports) || reports.length === 0) {
+      return res.status(400).json({ error: 'reports es requerido y debe ser un arreglo' });
+    }
+
+    // Extrae los reportIds y groupIds
+    const reportConfigs = reports.map(r => ({
+      reportId: r.reportId,
+      groupId: r.groupId,
+    }));
+
+    // Extrae las identidades si están presentes
+    const tokenData = await getEmbedTokenMultiRol(reportConfigs, req.body.userInfo);
+
+    res.json({
+      embedToken: tokenData.embedToken,
+      reports: tokenData.reports,
+      groupId: tokenData.groupId,
+      identities: tokenData.identities 
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en la autenticación múltiple', details: error.message });
+  }
+};
+
+
 
 // Redirigir al usuario al portal de autenticación de Azure AD
 export const redirectToAuthCode = async (req, res) => {
