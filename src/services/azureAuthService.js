@@ -29,6 +29,9 @@ export const getEmbedToken = async (reportId) => {
 
     const url = `https://api.powerbi.com/v1.0/myorg/groups/${config.groupId}/reports/${reportId}/GenerateToken`;
 
+    console.log(config.groupID);
+    console.log(url);
+
     const embedResponse = await axios.post(
       url,
       { accessLevel: 'View' },
